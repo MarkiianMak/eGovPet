@@ -1,0 +1,58 @@
+<app-nav />
+<!-- <div class="mt-20 ml-20 flex items-center justify-left">
+     <div class=" shadow-lg rounded-2xl p-8 w-full max-w-md text-center">
+          @if(loggedIn) {
+          <div>
+               <h2 class="text-2xl font-bold text-gray-800 mb-4">Привіт, {{ username }}!</h2>
+               <p class="mb-6 text-gray-600">Ви зараз залогінені.</p>
+               <button (click)="logout()"
+                    class="w-full py-2 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md transition">
+                    Вийти
+               </button>
+          </div>
+          } @else {
+          <div>
+               <h2 class="text-2xl font-bold text-primary mb-4">Вхід на сайт</h2>
+               <p class="mb-6 text-gray-600">Будь ласка, увійдіть або зареєструйтесь.</p>
+               <a routerLink="/login"
+                    class="inline-block w-full py-2 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition ">
+                    Логін
+               </a>
+               <a routerLink="/register"
+                    class="inline-block w-full mt-3 py-2 px-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-md transition">
+                    Реєстрація
+               </a>
+          </div>
+          }
+     </div>
+</div> -->
+
+<!-- <app-home></app-home> -->
+
+<!-- <app-login></app-login>
+
+<app-register></app-register> -->
+<router-outlet></router-outlet>
+
+
+@if(loggedIn){
+<div>
+     <h2 class="text-2xl font-bold text-gray-800 mb-4">Привіт, {{ username }}!</h2>
+     <p class="mb-6 text-gray-600">Ви зараз залогінені.</p>
+     <button (click)="logout()"
+          class="w-full py-2 px-4 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg shadow-md transition">
+          Вийти
+     </button>
+</div>
+}@else{
+<div class="dock">
+     <a routerLink="/login"
+          class=" btn btn-wide  w-full text-center py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow-md transition">
+          Логін
+     </a>
+
+     <a routerLink="/register"
+          class="btn btn-wide  w-full text-center py-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-md transition">
+          Реєстрація
+     </a>
+</div>}

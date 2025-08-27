@@ -1,0 +1,56 @@
+<div class="min-h-120 flex items-center justify-center">
+     <div class="shadow-lg rounded-2xl p-8 w-full max-w-md border">
+          <h2 class="text-2xl font-bold text-primary mb-6 text-center">Реєстрація</h2>
+
+          <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-5">
+
+               <!-- Username -->
+               <div>
+                    <label for="username" class="block text-sm font-medium text-gray-700">Логін</label>
+                    <input id="username" type="text" formControlName="username"
+                         class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                         placeholder="Введіть логін" />
+                    <div *ngIf="submitted && registerForm.get('username')?.invalid" class="text-red-500 text-sm mt-1">
+                         Логін обов'язковий (мінімум 3 символи).
+                    </div>
+               </div>
+
+               <!-- Email -->
+               <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input id="email" type="email" formControlName="email"
+                         class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                         placeholder="Введіть email" />
+                    <div *ngIf="submitted && registerForm.get('email')?.invalid" class="text-red-500 text-sm mt-1">
+                         Введіть правильний email.
+                    </div>
+               </div>
+
+               <!-- Password -->
+               <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Пароль</label>
+                    <input id="password" type="password" formControlName="password"
+                         class="mt-1 w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                         placeholder="Введіть пароль" />
+                    <div *ngIf="submitted && registerForm.get('password')?.invalid" class="text-red-500 text-sm mt-1">
+                         Пароль обов'язковий (мінімум 6 символів).
+                    </div>
+               </div>
+
+
+
+               <!-- Submit -->
+               <button type="submit"
+                    class="w-full py-2 px-4 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md transition">
+                    Зареєструватися
+               </button>
+          </form>
+
+          <div *ngIf="successMessage" class="mt-4 text-green-600 text-center font-medium">
+               {{ successMessage }}
+          </div>
+          <div *ngIf="errorMessage" class="mt-4 text-red-600 text-center font-medium">
+               {{ errorMessage }}
+          </div>
+     </div>
+</div>
