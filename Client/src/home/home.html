@@ -1,0 +1,14 @@
+<div class="overflow-x-auto">
+     <table class="table">
+
+          @for( user of users; track user.id ){
+          <tr>
+               <th>{{user.id}}</th>
+               <td>{{user.userName}}</td>
+               <td>{{user.email}}</td>
+          </tr>
+          }
+
+
+     </table>
+</div>

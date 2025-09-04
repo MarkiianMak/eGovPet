@@ -8,6 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using API.DTOs;
 using API.Models;
+using System.Security.Claims;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -17,12 +22,14 @@ namespace API.Controllers
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<AuthController> _logger;
+        private readonly IConfiguration _config;
 
-        public AuthController(ILogger<AuthController> logger, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AuthController(ILogger<AuthController> logger, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IConfiguration config)
         {
             _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
+            _config = config;
         }
 
 
@@ -31,12 +38,36 @@ namespace API.Controllers
 
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            var result = await _signInManager.PasswordSignInAsync(loginDto.UserName, loginDto.Password, false, false);
-            if (result.Succeeded)
+            var user = await _userManager.FindByNameAsync(loginDto.UserName);
+            if (user == null) return Unauthorized("Invalid login attempt");
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
+            if (!result.Succeeded) return Unauthorized("Invalid login attempt");
+
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var claims = new List<Claim>
             {
-                return Ok();
-            }
-            return Unauthorized();
+                new Claim(ClaimTypes.Name, user.UserName ?? ""),
+                new Claim(ClaimTypes.Email, user.Email ?? "")
+            };
+
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddHours(1),
+                signingCredentials: creds);
+
+
+
+            return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
+
         }
 
         [HttpPost("logout")]
@@ -64,6 +95,12 @@ namespace API.Controllers
             return Ok(result.Errors);
         }
 
+        [HttpGet("users")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var users = await _userManager.Users.ToListAsync();
+            return Ok(users);
+        }
 
     }
 }

@@ -1,14 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../Core/services/auth';
 import { Output, EventEmitter } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+import { LoggedIn } from '../Core/services/logged-in';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './login.html',
 })
 export class LoginComponent {
@@ -16,12 +18,16 @@ export class LoginComponent {
   submitted = false;
   errorMessage = '';
   successMessage = '';
-  isLoggedIn = false;
 
-  constructor(private fb: FormBuilder, private auth: AuthService) {
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService,
+    private router: Router,
+    private loggedInService: LoggedIn
+  ) {
     this.loginForm = this.fb.group({
-      username: ['', Validators.required],
-      password: ['', Validators.required],
+      username: [''],
+      password: [''],
     });
   }
 
@@ -32,27 +38,15 @@ export class LoginComponent {
 
     if (this.loginForm.valid) {
       const { username, password } = this.loginForm.value;
-
-      this.auth.login({ username, password }).subscribe({
-        next: (res) => {
-          this.successMessage = 'Вхід успішний!';
-          console.log('User logged in:', res);
-          this.isLoggedIn = true;
-
-          // тут можна зберегти токен, якщо бекенд повертає JWT
-          // localStorage.setItem('token', res.token);
+      this.auth.login(username, password).subscribe({
+        next: (token) => {
+          this.loggedInService.loggedIn.set(true);
+          this.auth.saveToken(token);
+          alert('Login successful');
+          this.router.navigate(['/home']);
         },
-        error: (err) => {
-          this.errorMessage = 'Невірний логін або пароль.';
-          console.error(err);
-        },
+        error: () => alert('Login failed'),
       });
     }
-  }
-
-  @Output() dataEmitter = new EventEmitter<boolean>();
-
-  sendData() {
-    this.dataEmitter.emit(this.isLoggedIn);
   }
 }

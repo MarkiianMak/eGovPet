@@ -31,6 +31,10 @@
         "@schematics/angular:service": {
           "skipTests": true,
           "path": "src/Core/services"
+        },
+        "@schematics/angular:module": {
+          
+          "path": "src/Data"
         }
       },
       "root": "",

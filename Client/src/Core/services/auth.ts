@@ -1,6 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, Observable, of } from 'rxjs';
+import { tap } from 'rxjs/operators';
+import { LoggedIn } from './logged-in';
 
 @Injectable({
   providedIn: 'root',
@@ -8,7 +10,19 @@ import { catchError, map, Observable, of } from 'rxjs';
 export class AuthService {
   private apiUrl = 'http://localhost:5165/';
 
-  constructor(private http: HttpClient) {}
+  private tokenKey = 'jwt_token';
+
+  constructor(private http: HttpClient, private loggedInService: LoggedIn) {}
+
+  login(username: string, password: string): Observable<string> {
+    this.loggedInService.loggedIn.set(true);
+    return this.http
+      .post<{ token: string }>(`${this.apiUrl}api/auth/login`, {
+        username,
+        password,
+      })
+      .pipe(map((res) => res.token));
+  }
 
   register(data: {
     username: string;
@@ -18,26 +32,15 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}api/auth/register`, data);
   }
 
-  login(data: { username: string; password: string }): Observable<any> {
-    return this.http.post(`${this.apiUrl}api/auth/login`, data);
-  }
-
   logout(): Observable<any> {
-    return this.http.post(
-      `${this.apiUrl}/api/auth/logout`,
-      {},
-      { withCredentials: true }
-    );
+    return this.http.post(`${this.apiUrl}api/auth/logout`, {});
   }
 
-  isLoggedIn(): Observable<boolean> {
-    return this.http
-      .get<{ username: string }>(`${this.apiUrl}api/auth/me`, {
-        withCredentials: true,
-      })
-      .pipe(
-        map((res) => !!res.username),
-        catchError(() => of(false))
-      );
+  saveToken(token: string) {
+    localStorage.setItem('jwt', token);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('jwt');
   }
 }

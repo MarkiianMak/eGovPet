@@ -1,10 +1,11 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, computed, OnInit, signal } from '@angular/core';
 
 import { Nav } from '../nav/nav';
 import { ReactiveFormsModule } from '@angular/forms';
 
 import { AuthService } from '../Core/services/auth';
 import { AppRoutingModule } from './app.routes';
+import { LoggedIn } from '../Core/services/logged-in';
 
 @Component({
   selector: 'app-root',
@@ -13,22 +14,14 @@ import { AppRoutingModule } from './app.routes';
   styleUrl: './app.css',
 })
 export class App implements OnInit {
-  loggedIn = false;
   username = '';
 
-  constructor(private auth: AuthService) {}
+  constructor(private auth: AuthService, public loggedInService: LoggedIn) {}
 
-  ngOnInit() {
-    this.auth.isLoggedIn().subscribe((isLogged) => {
-      this.loggedIn = isLogged;
-      if (isLogged) {
-        this.username = 'користувач';
-      }
-    });
-  }
+  ngOnInit() {}
+
   logout() {
     this.auth.logout().subscribe(() => {
-      this.loggedIn = false;
       this.username = '';
     });
   }
